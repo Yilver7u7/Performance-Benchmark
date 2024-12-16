@@ -9,33 +9,95 @@
 <body>
     <main class="container">
         <h2>Global</h2>
-        <textarea class="code" id="global" rows="1"></textarea>
+        <textarea class="code" id="global" rows="1">const data = [...Array(1000).keys()]</textarea>
         
         <h2>Text Cases</h2>
         
         <div class="test-cases">
-            <article class="text-case">
+            <article class="test-case">
                 <header>
                     <span class="test-id">1</span>
                     <span class="ops"> 203</span>
                 </header>
                 
-                <textarea class="code" rows="1">data.fing(x) => x ==100</textarea>
+                <textarea class="code" rows="1">data.find( x => x == 100)</textarea>
             </article>
             
-            <article class="text-case">
+            <article class="test-case">
                 <header>
                     <span class="test-id">2</span>
                     <span class="ops"> 233</span>
                 </header>
                 
-                <textarea class="code" rows="1">data.fing(x) => x ==450</textarea>
+                <textarea class="code" rows="1">data.find( x => x == 450)</textarea>
             </article>
 
         </div>
     </main>
 
     <button class="send-button"> Enviar</button>
+
+    <script type="module">
+        const $globalCode = document.querySelector('#global');
+        const $sendButton = document.querySelector('.send-button');
+
+        async function runTestCase(){
+            // Where is the magic work 🧙
+            const $testCases = document.querySelectorAll('.test-case');
+            const globalCode = $globalCode.value
+
+
+            /*Lo que sucede aqui es que termina saturando el hilo de trabajo
+            */
+            async function runTest({ code, data }) {
+                const duration = 1000 // 1 second
+
+                let result
+                try {
+                    result = await eval(`(async () => {
+                        let PERF__ops = 0;
+                        let PERF__start = Date.now();
+                        let PERF__end = Date.now() + ${duration};
+                        ${data};
+
+                        while (Date.now() < PERF__end) {
+                            ${code};
+                            PERF__ops++;
+                        }
+                        return PERF__ops
+                    })()`) // IIFE => Immediately Invoked Fuction Expression
+                } catch (error) {
+                    console.log(error)
+                    result = 0
+                }
+
+                return result
+            }
+
+            //Podemos traer cada uno de los elementos de una seccion especifica
+            $testCases.forEach( async testCase => {
+                const $code = testCase.querySelector('.code');
+                const $ops = testCase.querySelector('.ops');
+
+                // obtenermos el valor de la etiquera y lo modificamos
+                const codeValue = $code.value;
+                $ops.textContent = 'Cargando...'
+                console.log( codeValue )
+
+                const result = await runTest({ code: codeValue, data: globalCode })
+                console.log( result)
+
+            })
+        }
+
+        //run test cases on init
+        runTestCase();
+
+        $sendButton.addEventListener('click', () => {
+            runTestCase();
+        })
+
+    </script>
 
 </body>
 </html>
