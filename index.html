@@ -46,32 +46,18 @@
             const $testCases = document.querySelectorAll('.test-case');
             const globalCode = $globalCode.value
 
-
+            
             /*Lo que sucede aqui es que termina saturando el hilo de trabajo
             */
             async function runTest({ code, data }) {
-                const duration = 1000 // 1 second
-
-                let result
-                try {
-                    result = await eval(`(async () => {
-                        let PERF__ops = 0;
-                        let PERF__start = Date.now();
-                        let PERF__end = Date.now() + ${duration};
-                        ${data};
-
-                        while (Date.now() < PERF__end) {
-                            ${code};
-                            PERF__ops++;
-                        }
-                        return PERF__ops
-                    })()`) // IIFE => Immediately Invoked Fuction Expression
-                } catch (error) {
-                    console.log(error)
-                    result = 0
+                const worker = new Worker('worker.js')
+            worker.postMessage({ code, data, duration: 1000 })
+            return new Promise( resolve => {
+                worker.onmessage = event => {
+                    console.log('El worker dice:', event.data)
+                    resolve(event.data);
                 }
-
-                return result
+            })
             }
 
             //Podemos traer cada uno de los elementos de una seccion especifica
