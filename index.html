@@ -17,7 +17,7 @@
             <article class="test-case">
                 <header>
                     <span class="test-id">1</span>
-                    <span class="ops"> 203</span>
+                    <span class="ops"></span>
                 </header>
                 
                 <textarea class="code" rows="1">data.find( x => x == 100)</textarea>
@@ -26,7 +26,7 @@
             <article class="test-case">
                 <header>
                     <span class="test-id">2</span>
-                    <span class="ops"> 233</span>
+                    <span class="ops"></span>
                 </header>
                 
                 <textarea class="code" rows="1">data.find( x => x == 450)</textarea>
@@ -71,6 +71,8 @@
                 console.log( codeValue )
 
                 const result = await runTest({ code: codeValue, data: globalCode })
+                
+                $ops.textContent = `${result}`
                 console.log( result)
 
             })
